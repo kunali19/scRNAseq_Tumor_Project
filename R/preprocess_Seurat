@@ -1,0 +1,19 @@
+library(Seurat)
+library(SeuratDisk)
+
+# Load matrix files (simulated format)
+counts <- ReadMtx(
+  mtx = "data/GSE131907_RAW/matrix.mtx.gz",
+  features = "data/GSE131907_RAW/features.tsv.gz",
+  cells = "data/GSE131907_RAW/barcodes.tsv.gz"
+)
+
+# Create and preprocess Seurat object
+seurat_obj <- CreateSeuratObject(counts = counts, project = "Tumor_Gene_Expression")
+seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > 200)
+seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000)
+
+# Save for Scanpy
+SaveH5Seurat(seurat_obj, filename = "data/tumor_data.h5Seurat", overwrite = TRUE)
+Convert("data/tumor_data.h5Seurat", dest = "h5ad", overwrite = TRUE)
+
